@@ -54,9 +54,10 @@ def sendPhoto(client_socket):
 
     #cnx.commit()
 
+    # Send the photo bytes to the client
     client_socket.sendall(byte_sequence)
-    print("Photo sent ...")
-
+    
+    print('Photo sent to the client')
 
 # Query specific photo by its id
 def getPhoto(id):

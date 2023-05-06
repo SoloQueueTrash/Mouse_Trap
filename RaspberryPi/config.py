@@ -5,7 +5,7 @@ DATABASE = "se2223"
 
 # Define the IP address and port to use
 IP_ADDRESS = 'localhost'
-PORT = 12345
+PORT = 8000
 TIMEOUT = 10
 
 OPEN = "cmd_open"

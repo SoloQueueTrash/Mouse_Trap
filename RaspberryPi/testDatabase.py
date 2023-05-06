@@ -20,10 +20,10 @@ def getPhoto(id):
 
     result = cursor.fetchone()
 
-    if result is not None:
+    if result:
         return (result[0], result[1])
 
-    raise Exception("Query error!")
+    raise Exception("No photo found for the given id:{}!".format(id))
 
 # Connect to the database
 cnx = mysql.connector.connect(user="se2223", password="1234", database='se2223')
@@ -39,18 +39,17 @@ with picamera.PiCamera() as camera:
 byte_sequence = stream.getvalue()
 timestamp = datetime.now()
 
-#updateDatabase(byte_sequence, timestamp)
+updateDatabase(byte_sequence, timestamp)
 
-for i in range(1, 5):
-    try:
-        bytes, times = getPhoto(i)
+try:
+    bytes, times = getPhoto(3)
 
-        with open(f'RaspberryPi/images/photo{i}.jpg', 'wb') as f:
-            f.write(bytes)
+    with open(f'RaspberryPi/images/photo.jpg', 'wb') as f:
+        f.write(bytes)
 
-        print(times)
-    except Exception as e:
-        print(e)
+    print(times)
+except Exception as e:
+    print(e)
 
 cursor.close()
 cnx.close()
