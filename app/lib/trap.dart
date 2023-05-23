@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 class Trap {
   String name;
   String ip;
@@ -38,6 +43,19 @@ extension TrapStatusExtension on TrapStatus {
         return TrapStatus.error;
       default:
         return TrapStatus.unknown;
+    }
+  }
+
+  String get name {
+    switch (this) {
+      case TrapStatus.open:
+        return 'Open';
+      case TrapStatus.closed:
+        return 'Closed';
+      case TrapStatus.error:
+        return 'Error';
+      default:
+        return 'Unknown';
     }
   }
 }
