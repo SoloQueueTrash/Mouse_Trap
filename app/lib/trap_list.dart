@@ -4,6 +4,8 @@ import 'package:app/trap.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'add_trap.dart';
+
 class TrapListScreen extends StatefulWidget {
   const TrapListScreen({Key? key}) : super(key: key);
 
@@ -94,7 +96,19 @@ class _TrapListScreenState extends State<TrapListScreen> {
 
   Widget _buildFloatingActionButton() {
     return FloatingActionButton(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.push<Trap?>(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddTrapScreen(),
+          ),
+        ).then((trap) {
+          if (trap != null) {
+            setState(() => _traps.add(trap));
+            _saveTraps();
+          }
+        });
+      },
       child: const Icon(Icons.add),
     );
   }
