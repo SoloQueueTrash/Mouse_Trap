@@ -107,6 +107,15 @@ class _TrapListScreenState extends State<TrapListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Traps'),
+      ),
+      body: ListView.builder(
+        itemBuilder: _buildTrapItem,
+        itemCount: _traps.length,
+      ),
+      floatingActionButton: _buildFloatingActionButton(),
+    );
   }
 }
