@@ -71,4 +71,17 @@ extension TrapStatusExtension on TrapStatus {
         return Icons.help;
     }
   }
+
+  Color get color {
+    switch (this) {
+      case TrapStatus.open:
+        return Colors.green;
+      case TrapStatus.closed:
+        return Colors.red;
+      case TrapStatus.error:
+        return Colors.yellow;
+      default:
+        return Colors.grey;
+    }
+  }
 }
