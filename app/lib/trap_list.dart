@@ -25,6 +25,13 @@ class _TrapListScreenState extends State<TrapListScreen> {
     });
   }
 
+  void _saveTraps() {
+    var trapsJson = _traps.map((e) => jsonEncode(e.toJson())).toList();
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setStringList('traps', trapsJson);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
