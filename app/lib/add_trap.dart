@@ -1,3 +1,4 @@
+import 'package:app/trap.dart';
 import 'package:flutter/material.dart';
 
 class AddTrapScreen extends StatefulWidget {
@@ -59,6 +60,33 @@ class _AddTrapScreenState extends State<AddTrapScreen> {
     );
   }
 
+  ElevatedButton _buildSubmitButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        if (_formKey.currentState!.validate()) {
+          Navigator.pop(
+            context,
+            Trap(
+              name: _nameController.text,
+              ip: _ipController.text,
+              port: int.parse(_portController.text),
+            ),
+          );
+        }
+      },
+      child: const Text('Add'),
+    );
+  }
+
+  ElevatedButton _buildCancelButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.pop(context);
+      },
+      child: const Text('Cancel'),
+    );
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -81,6 +109,15 @@ class _AddTrapScreenState extends State<AddTrapScreen> {
             _buildIpField(),
             const SizedBox(height: 16),
             _buildPortField(),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                _buildCancelButton(context),
+                const SizedBox(width: 16),
+                _buildSubmitButton(context),
+              ],
+            ),
           ],
         ),
       ),
