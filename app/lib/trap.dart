@@ -19,3 +19,10 @@ class Trap {
         'port': port,
       };
 }
+
+enum TrapStatus {
+  open,
+  closed,
+  error,
+  unknown,
+}
