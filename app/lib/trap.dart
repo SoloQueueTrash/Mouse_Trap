@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 
 class Trap {
   String name;
@@ -23,6 +23,16 @@ class Trap {
         'ip': ip,
         'port': port,
       };
+
+  Future<TrapStatus> getStatus() async {
+    var url = Uri.http('$ip:$port', '/status');
+    var response = await http.get(url);
+    if (response.statusCode != 200) {
+      return TrapStatus.unknown;
+    }
+    var json = jsonDecode(response.body);
+    return TrapStatusExtension.fromString(json['status']);
+  }
 }
 
 enum TrapStatus {
