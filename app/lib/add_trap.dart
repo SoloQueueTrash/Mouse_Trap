@@ -8,6 +8,7 @@ class AddTrapScreen extends StatefulWidget {
 class _AddTrapScreenState extends State<AddTrapScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _ipController = TextEditingController();
 
   TextFormField _buildNameField() {
     return TextFormField(
@@ -25,9 +26,26 @@ class _AddTrapScreenState extends State<AddTrapScreen> {
     );
   }
 
+  TextFormField _buildIpField() {
+    return TextFormField(
+      controller: _ipController,
+      decoration: const InputDecoration(
+        labelText: 'IP Address',
+        border: OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter an IP address';
+        }
+        return null;
+      },
+    );
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
+    _ipController.dispose();
     super.dispose();
   }
 
@@ -41,6 +59,8 @@ class _AddTrapScreenState extends State<AddTrapScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             _buildNameField(),
+            const SizedBox(height: 16),
+            _buildIpField(),
           ],
         ),
       ),
