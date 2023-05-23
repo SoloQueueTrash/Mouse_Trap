@@ -44,6 +44,40 @@ class _TrapControlScreenState extends State<TrapControlScreen> {
     );
   }
 
+  Widget _buildTrapControlButton() {
+    return FutureBuilder(
+      future: widget.trap.getStatus(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          var status = snapshot.data as TrapStatus;
+          return ElevatedButton(
+            onPressed: () {
+              if (status == TrapStatus.open) {
+                widget.trap.close();
+              } else {
+                widget.trap.open();
+              }
+              setState(() {});
+            },
+            child: Text(status == TrapStatus.open ? 'Close' : 'Open'),
+          );
+        } else {
+          return const CircularProgressIndicator();
+        }
+      },
+    );
+  }
+
+  Widget _buildTakePictureButton() {
+    return ElevatedButton(
+      onPressed: () {
+        widget.trap.takePicture();
+        setState(() {});
+      },
+      child: const Text('Picture'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,6 +91,15 @@ class _TrapControlScreenState extends State<TrapControlScreen> {
             _buildTrapPicture(),
             const SizedBox(height: 16),
             _buildTrapStatus(),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildTrapControlButton(),
+                const SizedBox(width: 16),
+                _buildTakePictureButton(),
+              ],
+            ),
           ],
         ),
       ),
