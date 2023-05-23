@@ -53,6 +53,12 @@ class Trap {
     var json = jsonDecode(response.body);
     return TrapStatusExtension.fromString(json['status']);
   }
+
+  Future<bool> takePicture() async {
+    var url = Uri.http('$ip:$port', '/take_picture');
+    var response = await http.get(url);
+    return response.statusCode == 200;
+  }
 }
 
 enum TrapStatus {
