@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:app/control_trap.dart';
 import 'package:app/trap.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -79,16 +80,29 @@ class _TrapListScreenState extends State<TrapListScreen> {
             );
           } else {
             var status = snapshot.data as TrapStatus;
-            return Container(
-              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              decoration: BoxDecoration(
-                color: status.color.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: status.color, width: 2),
-              ),
-              child: _buildTrapItemContent(trap, status),
-            );
+            return GestureDetector(
+                child: Container(
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: status.color.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: status.color, width: 2),
+                  ),
+                  child: _buildTrapItemContent(trap, status),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TrapControlScreen(trap: trap),
+                    ),
+                  ).then((_) {
+                    setState(() {});
+                  });
+                });
           }
         },
         future: trap.getStatus());
