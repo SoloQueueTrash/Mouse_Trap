@@ -58,4 +58,17 @@ extension TrapStatusExtension on TrapStatus {
         return 'Unknown';
     }
   }
+
+  IconData get icon {
+    switch (this) {
+      case TrapStatus.open:
+        return Icons.lock_open;
+      case TrapStatus.closed:
+        return Icons.lock;
+      case TrapStatus.error:
+        return Icons.error;
+      default:
+        return Icons.help;
+    }
+  }
 }
