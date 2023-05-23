@@ -9,6 +9,7 @@ class _AddTrapScreenState extends State<AddTrapScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _ipController = TextEditingController();
+  final _portController = TextEditingController();
 
   TextFormField _buildNameField() {
     return TextFormField(
@@ -42,10 +43,27 @@ class _AddTrapScreenState extends State<AddTrapScreen> {
     );
   }
 
+  TextFormField _buildPortField() {
+    return TextFormField(
+      controller: _portController,
+      decoration: const InputDecoration(
+        labelText: 'Port',
+        border: OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter a port';
+        }
+        return null;
+      },
+    );
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
     _ipController.dispose();
+    _portController.dispose();
     super.dispose();
   }
 
@@ -61,6 +79,8 @@ class _AddTrapScreenState extends State<AddTrapScreen> {
             _buildNameField(),
             const SizedBox(height: 16),
             _buildIpField(),
+            const SizedBox(height: 16),
+            _buildPortField(),
           ],
         ),
       ),
