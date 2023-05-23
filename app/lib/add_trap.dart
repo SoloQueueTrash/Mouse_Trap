@@ -7,9 +7,27 @@ class AddTrapScreen extends StatefulWidget {
 
 class _AddTrapScreenState extends State<AddTrapScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+
+  TextFormField _buildNameField() {
+    return TextFormField(
+      controller: _nameController,
+      decoration: const InputDecoration(
+        labelText: 'Name',
+        border: OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter a name';
+        }
+        return null;
+      },
+    );
+  }
 
   @override
   void dispose() {
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -22,6 +40,7 @@ class _AddTrapScreenState extends State<AddTrapScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            _buildNameField(),
           ],
         ),
       ),
