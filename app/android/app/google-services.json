@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "208090738802",
+    "project_id": "msi-ses2223-g06",
+    "storage_bucket": "msi-ses2223-g06.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:208090738802:android:8ec7c57bc60905d56c52eb",
+        "android_client_info": {
+          "package_name": "pt.up.fc.msi.ses.g06.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "208090738802-dbd0nqepa5afjgolm74itu2gfj059e7q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGMsY6ZRGXpuuY-26ZtoRqRHT7XUUk0bc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "208090738802-dbd0nqepa5afjgolm74itu2gfj059e7q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
