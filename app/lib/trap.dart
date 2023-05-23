@@ -59,6 +59,16 @@ class Trap {
     var response = await http.get(url);
     return response.statusCode == 200;
   }
+
+  Future<String?> getPicture() async {
+    var url = Uri.http('$ip:$port', '/get_picture');
+    var response = await http.get(url);
+    if (response.statusCode != 200) {
+      return null;
+    }
+    var json = jsonDecode(response.body);
+    return json['path'];
+  }
 }
 
 enum TrapStatus {
