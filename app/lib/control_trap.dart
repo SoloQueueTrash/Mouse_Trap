@@ -11,6 +11,18 @@ class TrapControlScreen extends StatefulWidget {
 }
 
 class _TrapControlScreenState extends State<TrapControlScreen> {
+  Widget _buildTrapPicture() {
+    return FutureBuilder(
+      future: widget.trap.getPicture(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Image.network(snapshot.data.toString());
+        } else {
+          return const CircularProgressIndicator();
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +34,7 @@ class _TrapControlScreenState extends State<TrapControlScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            _buildTrapPicture(),
           ],
         ),
       ),
