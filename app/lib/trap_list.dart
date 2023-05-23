@@ -92,6 +92,13 @@ class _TrapListScreenState extends State<TrapListScreen> {
         future: trap.getStatus());
   }
 
+  Widget _buildFloatingActionButton() {
+    return FloatingActionButton(
+      onPressed: () {},
+      child: const Icon(Icons.add),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
