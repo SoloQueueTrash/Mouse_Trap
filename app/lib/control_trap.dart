@@ -24,6 +24,26 @@ class _TrapControlScreenState extends State<TrapControlScreen> {
     );
   }
 
+  Widget _buildTrapStatus() {
+    return FutureBuilder(
+      future: widget.trap.getStatus(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          var status = snapshot.data as TrapStatus;
+          return Text(
+            status.name,
+            style: TextStyle(
+              color: status.color,
+              fontSize: 24,
+            ),
+          );
+        } else {
+          return const CircularProgressIndicator();
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,6 +55,8 @@ class _TrapControlScreenState extends State<TrapControlScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildTrapPicture(),
+            const SizedBox(height: 16),
+            _buildTrapStatus(),
           ],
         ),
       ),
