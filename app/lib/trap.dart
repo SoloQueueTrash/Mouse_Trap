@@ -26,3 +26,18 @@ enum TrapStatus {
   error,
   unknown,
 }
+
+extension TrapStatusExtension on TrapStatus {
+  static TrapStatus fromString(String status) {
+    switch (status) {
+      case 'open':
+        return TrapStatus.open;
+      case 'closed':
+        return TrapStatus.closed;
+      case 'error':
+        return TrapStatus.error;
+      default:
+        return TrapStatus.unknown;
+    }
+  }
+}
