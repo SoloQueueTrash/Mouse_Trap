@@ -111,9 +111,14 @@ class _TrapListScreenState extends State<TrapListScreen> {
       appBar: AppBar(
         title: const Text('Traps'),
       ),
-      body: ListView.builder(
-        itemBuilder: _buildTrapItem,
-        itemCount: _traps.length,
+      body: RefreshIndicator(
+        child: ListView.builder(
+          itemBuilder: _buildTrapItem,
+          itemCount: _traps.length,
+        ),
+        onRefresh: () async {
+          setState(() {});
+        },
       ),
       floatingActionButton: _buildFloatingActionButton(),
     );
