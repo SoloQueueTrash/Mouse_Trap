@@ -33,6 +33,16 @@ class Trap {
     var json = jsonDecode(response.body);
     return TrapStatusExtension.fromString(json['status']);
   }
+
+  Future<TrapStatus> open() async {
+    var url = Uri.http('$ip:$port', '/open');
+    var response = await http.get(url);
+    if (response.statusCode != 200) {
+      return TrapStatus.unknown;
+    }
+    var json = jsonDecode(response.body);
+    return TrapStatusExtension.fromString(json['status']);
+  }
 }
 
 enum TrapStatus {
