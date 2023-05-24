@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:app/control_trap.dart';
 import 'package:app/trap.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -118,13 +119,18 @@ class _TrapListScreenState extends State<TrapListScreen> {
           ),
         ).then((trap) {
           if (trap != null) {
-            setState(() => _traps.add(trap));
-            _saveTraps();
+            _addNewTrap(trap);
           }
         });
       },
       child: const Icon(Icons.add),
     );
+  }
+
+  void _addNewTrap(Trap trap) async {
+    await FirebaseMessaging.instance.subscribeToTopic('${trap.ip}:${trap.port}');
+    setState(() => _traps.add(trap));
+    _saveTraps();
   }
 
   @override
