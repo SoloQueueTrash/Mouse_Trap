@@ -7,69 +7,96 @@ Servo x;
 int pirPin = 2;                 // choose the input pin (for PIR sensor)
 int pirState = LOW;             // we start, assuming no motion detected
 int val = 0;                    // variable for reading the pin status
-
+int lookingForMovement = 0;                 // varible before/after rpi
+unsigned long startTime;
+int test1 = 0;
 void setup() {
   Serial.begin(9600);
   x.attach(servoPin); 
   x.write(0);
 
   pinMode(pirPin, INPUT);     // declare sensor as input
-  Serial.begin(9600);
 }
 
 
 void abrir(){
   x.write(0);
   door_status = 1;
+  pirState = LOW;
+  lookingForMovement=0;
   Serial.println("cmd_open");
-
+  delay(3000);
 }
 
 void fechar(){
-  x.write(110); //90 = posição da porta fechada
+  x.write(105); //90 = posição da porta fechada
   door_status=0;
   Serial.println("cmd_close");
+  delay(2000);
 }
   
 
 void loop() {
-  val = digitalRead(pirPin);  // read input value
-
-  if (val == HIGH) {            
-
-    if (pirState == LOW) {    // passou a detetar movimento (antes nao estava a detetar movimento)
-      //Serial.println("Movimento detetado, a fechar porta!");
-      pirState = HIGH;
-
-      delay(5000);
-      fechar();
-      delay(2000); //necessario este delay, pq senao o motor pode nao ter tempo para fechar a porta, antes de começar a receber outros comandos
+  //initial state
+  //fechar();
+  if(lookingForMovement == 0 && door_status == 1){
+    int test = readSerialPort();
+    //Serial.println(test);
+    if(test == 1){
+    }else if (test == 0 && test1 == 0){
+      val = digitalRead(pirPin);  // read input value
+      //Serial.println(val);
+      if(val == HIGH){
+        if (pirState == LOW) { 
+          //Serial.println("HERE");
+          startTime = millis();
+          test1 = 1;
+          Serial.println("cmd_detected");
+          pirState = HIGH;
+        }
+       }
+    }else if(test1 == 1){   
+        //Serial.println("AQUIIII");
+        unsigned long currentTime = millis();
+        unsigned long elapsedTime = currentTime - startTime;
+        //Serial.println(currentTime + " " + elapsedTime);
+        if(elapsedTime >= 5000){
+          Serial.println("Time expired");
+          fechar();
+          abrir();
+          lookingForMovement = 1;
+        }else{
+          if(readSerialPort() == 1){
+            lookingForMovement = 1;
+          }else{
+            
+          }
+        }
     }
-  } else {
-    if (pirState == HIGH){   //parou de detetar movimento
-      //Serial.println("Movimento acabado, a abrir porta!");
-      abrir();  //apenas quando o utilizar pede para abrir
-      pirState = LOW;
-    }
+   }
+   
+   //waiting for RPI commands
+   else if(lookingForMovement == 1){
+    //Serial.println("AQUI V2");
+    readSerialPort();
   }
-  readSerialPort();
-  delay(500);
 }
-
 
 void state(){
-  if(door == 0){
-      Serial.println("state_open");
+  if(door_status == 0){
+      Serial.println("state_close");
   }
-  else if(door == 1){
-      Serial.println("state_close");    
+  else if(door_status == 1){
+      Serial.println("state_open");    
   }
 }
 
 
-void readSerialPort() {
+int readSerialPort() {
   String msg = "";
+  int recebi = 0 ;
   if (Serial.available()) {
+      recebi = 1;
       delay(10);
       while (Serial.available() > 0) {
           msg += (char)Serial.read();
@@ -90,5 +117,5 @@ void readSerialPort() {
       //Serial.print("Detetou");
       Serial.flush();
   }
+  return recebi;
 }
-
