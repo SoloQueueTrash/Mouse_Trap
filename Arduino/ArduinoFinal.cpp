@@ -5,8 +5,8 @@ int door_status = 1;             //0 = fechada,      1= aberta
 int servoPin = 6;                // choose the pin for the servo
 Servo x;
 int pirPin = 2;                 // choose the input pin (for PIR sensor)
-int pirStateCurrent = LOW;             // we start, assuming no motion detected
-int pirStatePrevious = LOW;             // we start, assuming no motion detected
+int pirStateCurrent;             // we start, assuming no motion detected
+int pirStatePrevious;             // we start, assuming no motion detected
 int val = 0;                    // variable for reading the pin status
 int lookingForMovement = 0;                 // varible before/after rpi
 unsigned long startTime;
@@ -16,7 +16,9 @@ void setup() {
   x.attach(servoPin); 
   x.write(0);
   pinMode(pirPin, INPUT); 
-  delay(3000);    // declare sensor as input
+  pirStateCurrent = LOW; 
+  pirStatePrevious = LOW; 
+  delay(20000);    // declare sensor as input
   //Serial.println("Scouting");
 }
 
@@ -25,23 +27,23 @@ void abrir(){
   if(door_status == 0){
     x.write(0);
     door_status = 1;
-    lookingForMovement=0;
-    Serial.println("cmd_open");
-    test1 = 0;
+    //Serial.println("cmd_open");
     pirStatePrevious = LOW;
     delay(3000); 
   }
+  test1 = 0;
+  lookingForMovement=0;
 }
 
 void fechar(){
   if(door_status == 1){
      x.write(105); //90 = posição da porta fechada
      door_status=0;
-     lookingForMovement = 1;
-     Serial.println("cmd_close");
+     //Serial.println("cmd_close");
      //pirStatePrevious = LOW;
      delay(2000); 
   }
+  lookingForMovement = 1;
 }
   
 
@@ -50,10 +52,11 @@ void fechar2(){
      x.write(105); //90 = posição da porta fechada
      door_status=0;
      lookingForMovement = 1;
-     //Serial.println("cmd_close");
+     Serial.println("cmd_autoclose");
      //pirStatePrevious = LOW;
      delay(2000); 
   }
+  lookingForMovement = 1;
 }
 
 
@@ -108,14 +111,14 @@ void loop() {
   }
 }
 
-void state(){
+/*void state(){
   if(door_status == 0){
       Serial.println("state_close");
   }
   else if(door_status == 1){
       Serial.println("state_open");    
   }
-}
+}*/
 
 
 int readSerialPort() {
@@ -129,23 +132,14 @@ int readSerialPort() {
       }
       msg.replace("\n", "");
       msg.replace("\r", "");
-      Serial.println('|' + msg + '|');
+      //Serial.println('|' + msg + '|');
       if(msg == "cmd_open"){
+          Serial.println("VOU ABRIR e o valor do lookingForMovement é " + String(lookingForMovement) );
         abrir();
       }
       else if(msg == "cmd_close"){
         fechar();
-      }
-      else if(msg == "cmd_state"){
-        state();
-      }
-      else if(msg == "cmd_movement"){
-        Serial.println("cmd_detected");
-        }
-      else{
-        Serial.println("Not a valid command");
-      }
-   
+      }   
       //Serial.print("Detetou");
       Serial.flush();
   }
