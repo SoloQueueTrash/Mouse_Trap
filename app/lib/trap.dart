@@ -35,7 +35,7 @@ class Trap {
   }
 
   Future<TrapStatus> open() async {
-    var url = Uri.http('$ip:$port', '/open');
+    var url = Uri.http('$ip:$port', '/arduino/cmd_open');
     var response = await http.get(url);
     if (response.statusCode != 200) {
       return TrapStatus.unknown;
@@ -45,7 +45,7 @@ class Trap {
   }
 
   Future<TrapStatus> close() async {
-    var url = Uri.http('$ip:$port', '/close');
+    var url = Uri.http('$ip:$port', '/arduino/cmd_close');
     var response = await http.get(url);
     if (response.statusCode != 200) {
       return TrapStatus.unknown;
@@ -55,13 +55,13 @@ class Trap {
   }
 
   Future<bool> takePicture() async {
-    var url = Uri.http('$ip:$port', '/take_picture');
+    var url = Uri.http('$ip:$port', '/photo/cmd_photo');
     var response = await http.get(url);
     return response.statusCode == 200;
   }
 
   Future<String?> getPicture() async {
-    var url = Uri.http('$ip:$port', '/get_picture');
+    var url = Uri.http('$ip:$port', '/photo/cmd_recent');
     var response = await http.get(url);
     if (response.statusCode != 200) {
       return null;
@@ -81,9 +81,9 @@ enum TrapStatus {
 extension TrapStatusExtension on TrapStatus {
   static TrapStatus fromString(String status) {
     switch (status) {
-      case 'open':
+      case 'cmd_open':
         return TrapStatus.open;
-      case 'closed':
+      case 'cmd_close':
         return TrapStatus.closed;
       case 'error':
         return TrapStatus.error;
