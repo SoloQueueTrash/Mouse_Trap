@@ -31,7 +31,7 @@ void setup() {
   doorMotor.attach(SERVO_PIN);
   doorMotor.write(MOTOR_OPEN_POSITION);
   pinMode(PIR_PIN, INPUT);
-  delay(DELAY_SENSOR_READY); 
+  delay(DELAY_SENSOR_READY);
   attachInterrupt(digitalPinToInterrupt(PIR_PIN), registerMovement, RISING);
 }
 
@@ -49,7 +49,7 @@ void openDoor() {
 
 void closeDoor() {
   if (doorOpen) {
-    doorMotor.write(MOTOR_CLOSED_POSITION); 
+    doorMotor.write(MOTOR_CLOSED_POSITION);
     doorOpen = false;
     delay(DELAY_CLOSE_MOVEMENT);
   }
@@ -59,7 +59,7 @@ void closeDoor() {
 
 void autoCloseDoor() {
   if (doorOpen) {
-    doorMotor.write(MOTOR_CLOSED_POSITION); 
+    doorMotor.write(MOTOR_CLOSED_POSITION);
     doorOpen = false;
     lookingForMovement = true;
     Serial.println("cmd_autoclose");
@@ -72,8 +72,8 @@ void autoCloseDoor() {
 void loop() {
   if (!lookingForMovement && doorOpen) {
     int test = readSerialPort();
-    if (test == 1) {
-    } else if (test == 0 && !movementDetected) {
+    if (test == 1) return;
+    if (!movementDetected) {
       if (interrupt) {
         movementDetected = true;
         Serial.println("cmd_detected");
@@ -93,10 +93,6 @@ void loop() {
         }
       }
     }
-  }
-
-  else if (lookingForMovement) {
-    readSerialPort();
   }
 }
 
