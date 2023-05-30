@@ -26,7 +26,6 @@ def not_found(error):
 @app.route('/status')
 def status():
     client_ip = request.remote_addr
-    global current_status
     write_logs(f'Status: {current_status} requested from {client_ip}')
     return jsonify({'status': current_status})
 
