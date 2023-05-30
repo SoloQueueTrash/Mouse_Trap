@@ -14,24 +14,26 @@
 #define DELAY_OPEN_MOVEMENT 3000
 #define DELAY_CLOSE_MOVEMENT 2000
 
-bool doorOpen = true; 
+bool doorOpen = true;
 bool lookingForMovement = false;
 bool movementDetected = false;
-
+bool interrupt = false;
 
 Servo x;
-int pirStateCurrent;         // we start, assuming no motion detected
-int pirStatePrevious;        // we start, assuming no motion detected
-int val = 0;                 // variable for reading the pin status
+int val = 0;  // variable for reading the pin status
 unsigned long startTime;
+
+void registerMovement() {
+  interrupt = true;
+}
+
 void setup() {
   Serial.begin(BAUD_RATE);
   x.attach(SERVO_PIN);
   x.write(MOTOR_OPEN_POSITION);
   pinMode(PIR_PIN, INPUT);
-  pirStateCurrent = LOW;
-  pirStatePrevious = LOW;
   delay(DELAY_SENSOR_READY);  // declare sensor as input
+  attachInterrupt(digitalPinToInterrupt(PIR_PIN), registerMovement, RISING);
   //Serial.println("Scouting");
 }
 
@@ -41,7 +43,7 @@ void abrir() {
     x.write(MOTOR_OPEN_POSITION);
     doorOpen = true;
     //Serial.println("cmd_open");
-    pirStatePrevious = LOW;
+    interrupt = false;
     delay(DELAY_OPEN_MOVEMENT);
   }
   movementDetected = false;
@@ -88,9 +90,7 @@ void loop() {
     if (test == 1) {
     } else if (test == 0 && !movementDetected) {
       //cmd_Serial.println("here");
-      pirStateCurrent = digitalRead(PIR_PIN);  // read input value
-      //pirState = HIGH;
-      if (pirStateCurrent == HIGH && pirStatePrevious == LOW) {
+      if (interrupt) {
         movementDetected = true;
         Serial.println("cmd_detected");
         Serial.flush();
