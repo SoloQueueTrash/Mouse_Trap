@@ -95,8 +95,7 @@ String readSerialPort() {
     while (Serial.available() > 0) {
       msg += (char)Serial.read();
     }
-    msg.replace("\n", "");
-    msg.replace("\r", "");
+    msg.trim();
     Serial.flush();
   }
   return msg;
