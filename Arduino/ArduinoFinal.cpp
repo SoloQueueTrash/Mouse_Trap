@@ -25,7 +25,7 @@ Servo doorMotor;
 unsigned long movementTime;
 
 void registerMovement() {
-  movementDetected = true;
+  movementDetected = currentState == OPEN;
 }
 
 void setup() {
@@ -60,9 +60,9 @@ void loop() {
         closeDoor();
         currentState = CLOSED;
       } else if (movementDetected) {
-        movementDetected = false;
         currentState = WAITING;
         movementTime = millis();
+        movementDetected = false;
         Serial.println("cmd_detected");
       }
       return;
