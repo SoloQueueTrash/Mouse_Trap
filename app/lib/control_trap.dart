@@ -20,6 +20,9 @@ class _TrapControlScreenState extends State<TrapControlScreen> {
         if (snapshot.hasData) {
           var bytes = snapshot.data as Uint8List;
           return Image.memory(bytes);
+        } else if (snapshot.hasError) {
+          return const Text('Could not get picture',
+              style: TextStyle(color: Colors.red));
         } else {
           return const CircularProgressIndicator();
         }

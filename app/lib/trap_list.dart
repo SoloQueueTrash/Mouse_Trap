@@ -62,9 +62,18 @@ class _TrapListScreenState extends State<TrapListScreen> {
           ],
         ),
         IconButton(
+          enableFeedback:
+              status == TrapStatus.open || status == TrapStatus.closed,
           icon: Icon(status.icon),
           color: status.color,
-          onPressed: () {},
+          onPressed: () {
+            if (status == TrapStatus.open) {
+              trap.close();
+            } else if (status == TrapStatus.closed) {
+              trap.open();
+            }
+            setState(() {});
+          },
         )
       ],
     );
@@ -74,12 +83,7 @@ class _TrapListScreenState extends State<TrapListScreen> {
     var trap = _traps[index];
     return FutureBuilder(
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator()),
-            );
-          } else {
+          if (snapshot.hasData) {
             var status = snapshot.data as TrapStatus;
             return GestureDetector(
                 child: Container(
@@ -104,6 +108,33 @@ class _TrapListScreenState extends State<TrapListScreen> {
                     setState(() {});
                   });
                 });
+          } else if (snapshot.hasError) {
+            var status = TrapStatus.unknown;
+            return GestureDetector(
+                child: Container(
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: status.color.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: status.color, width: 2),
+                  ),
+                  child: _buildTrapItemContent(trap, status),
+                ),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Cannot connect to trap'),
+                    ),
+                  );
+                });
+          } else {
+            return const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(child: CircularProgressIndicator()),
+            );
           }
         },
         future: trap.getStatus());

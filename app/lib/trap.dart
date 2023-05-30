@@ -65,7 +65,7 @@ class Trap {
     var url = Uri.http('$ip:$port', '/photo/cmd_recent');
     var response = await http.get(url);
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Failed to load picture');
     }
     return response.bodyBytes;
   }
