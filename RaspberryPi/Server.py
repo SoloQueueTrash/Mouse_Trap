@@ -1,4 +1,5 @@
 import io
+import json
 import logging
 import os
 import sys
@@ -8,6 +9,7 @@ from datetime import datetime
 
 import dotenv
 import picamera
+import requests
 import serial
 from flask import Flask, abort
 from flask import jsonify, send_file, request
@@ -113,10 +115,34 @@ def handle_detected():
 
         if command == "cmd_detected":
             logging.info("Movement detected")
+            send_notification('trap', 'Trap Movement', 'Movement detected in trap')
         if command == "cmd_autoclose":
-            global status
+            send_notification('trap', 'Trap Timeout', 'Trap closed due to timeout')
             logging.info("Automatic closing due to timeout")
+            global status
             status = 'cmd_close'
+
+
+def send_notification(topic, title, body):
+    token = os.getenv('FCM_TOKEN')
+
+    data = {
+        "message": {
+            "topic": topic,
+            "notification": {
+                "title": title,
+                "body": body,
+            }
+        }
+    }
+    data = json.dumps(data)
+
+    response = requests.post('https://fcm.googleapis.com/v1/projects/msi-ses2223-g06/messages:send', headers={
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+    }, data=data)
+
+    logging.info(f'Notification to {topic} with title: {title} and body: {body} with response: {response.status_code}')
 
 
 if __name__ == '__main__':
