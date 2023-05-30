@@ -19,8 +19,8 @@ bool lookingForMovement = false;
 bool movementDetected = false;
 bool interrupt = false;
 
-Servo x;
-unsigned long startTime;
+Servo doorMotor;
+unsigned long movementTime;
 
 void registerMovement() {
   interrupt = true;
@@ -28,17 +28,17 @@ void registerMovement() {
 
 void setup() {
   Serial.begin(BAUD_RATE);
-  x.attach(SERVO_PIN);
-  x.write(MOTOR_OPEN_POSITION);
+  doorMotor.attach(SERVO_PIN);
+  doorMotor.write(MOTOR_OPEN_POSITION);
   pinMode(PIR_PIN, INPUT);
   delay(DELAY_SENSOR_READY); 
   attachInterrupt(digitalPinToInterrupt(PIR_PIN), registerMovement, RISING);
 }
 
 
-void abrir() {
+void openDoor() {
   if (!doorOpen) {
-    x.write(MOTOR_OPEN_POSITION);
+    doorMotor.write(MOTOR_OPEN_POSITION);
     doorOpen = true;
     interrupt = false;
     delay(DELAY_OPEN_MOVEMENT);
@@ -47,9 +47,9 @@ void abrir() {
   lookingForMovement = false;
 }
 
-void fechar() {
+void closeDoor() {
   if (doorOpen) {
-    x.write(MOTOR_CLOSED_POSITION); 
+    doorMotor.write(MOTOR_CLOSED_POSITION); 
     doorOpen = false;
     delay(DELAY_CLOSE_MOVEMENT);
   }
@@ -57,9 +57,9 @@ void fechar() {
 }
 
 
-void fechar2() {
+void autoCloseDoor() {
   if (doorOpen) {
-    x.write(MOTOR_CLOSED_POSITION); 
+    doorMotor.write(MOTOR_CLOSED_POSITION); 
     doorOpen = false;
     lookingForMovement = true;
     Serial.println("cmd_autoclose");
@@ -78,13 +78,13 @@ void loop() {
         movementDetected = true;
         Serial.println("cmd_detected");
         Serial.flush();
-        startTime = millis();
+        movementTime = millis();
       }
     } else if (movementDetected) {
       unsigned long currentTime = millis();
-      unsigned long elapsedTime = currentTime - startTime;
+      unsigned long elapsedTime = currentTime - movementTime;
       if (elapsedTime >= TIMEOUT_AUTO_CLOSE) {
-        fechar2();
+        autoCloseDoor();
         lookingForMovement = true;
       } else {
         if (readSerialPort() == 1) {
@@ -113,9 +113,9 @@ int readSerialPort() {
     msg.replace("\r", "");
     if (msg == "cmd_open") {
       Serial.println("VOU ABRIR e o valor do lookingForMovement é " + String(lookingForMovement));
-      abrir();
+      openDoor();
     } else if (msg == "cmd_close") {
-      fechar();
+      closeDoor();
     }
     Serial.flush();
   }
