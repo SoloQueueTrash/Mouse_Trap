@@ -1,5 +1,4 @@
 #include <Servo.h>
-#include <Wire.h>
 
 #define BAUD_RATE 9600
 
@@ -31,8 +30,10 @@ void registerMovement() {
 
 void setup() {
   Serial.begin(BAUD_RATE);
+
   doorMotor.attach(SERVO_PIN);
   doorMotor.write(MOTOR_OPEN_POSITION);
+
   pinMode(PIR_PIN, INPUT);
   delay(DELAY_SENSOR_READY);
   attachInterrupt(digitalPinToInterrupt(PIR_PIN), registerMovement, RISING);
