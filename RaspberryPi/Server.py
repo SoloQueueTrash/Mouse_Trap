@@ -124,7 +124,10 @@ def handle_detected():
 
 
 def send_notification(topic, title, body):
-    token = os.getenv('FCM_TOKEN')
+    global token
+    if token is None:
+        logging.error('No token found')
+        return
 
     data = {
         "message": {
@@ -145,9 +148,27 @@ def send_notification(topic, title, body):
     logging.info(f'Notification to {topic} with title: {title} and body: {body} with response: {response.status_code}')
 
 
+def refresh_token():
+    rt = os.getenv('FCM_REFRESH_TOKEN')
+    headers = {
+        'Content-Type': 'application/json',
+    }
+    data = {
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "refresh_token": rt,
+    }
+    data = json.dumps(data)
+    response = requests.post('https://developers.google.com/oauthplayground/refreshAccessToken', headers=headers, data=data)
+    if response.status_code == 200:
+        return response.json()['access_token']
+    else:
+        return None
+
+
 if __name__ == '__main__':
     logging.basicConfig(filename='logs/accesses.log', level=logging.INFO)
     dotenv.load_dotenv()
+    token = refresh_token()
     arduino = serial.Serial(sys.argv[1], 9600)
     thread = threading.Thread(target=handle_detected)
     thread.deamon = True
