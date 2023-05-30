@@ -159,7 +159,6 @@ class _TrapListScreenState extends State<TrapListScreen> {
   }
 
   void _addNewTrap(Trap trap) async {
-    await FirebaseMessaging.instance.subscribeToTopic('${trap.ip}:${trap.port}');
     setState(() => _traps.add(trap));
     _saveTraps();
   }
