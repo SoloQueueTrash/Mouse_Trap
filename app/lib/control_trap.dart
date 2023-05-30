@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:app/trap.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +18,8 @@ class _TrapControlScreenState extends State<TrapControlScreen> {
       future: widget.trap.getPicture(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return Image.network(snapshot.data.toString());
+          var bytes = snapshot.data as Uint8List;
+          return Image.memory(bytes);
         } else {
           return const CircularProgressIndicator();
         }

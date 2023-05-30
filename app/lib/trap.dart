@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -60,14 +61,13 @@ class Trap {
     return response.statusCode == 200;
   }
 
-  Future<String?> getPicture() async {
+  Future<Uint8List?> getPicture() async {
     var url = Uri.http('$ip:$port', '/photo/cmd_recent');
     var response = await http.get(url);
     if (response.statusCode != 200) {
       return null;
     }
-    var json = jsonDecode(response.body);
-    return json['path'];
+    return response.bodyBytes;
   }
 }
 
