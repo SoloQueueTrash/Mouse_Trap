@@ -103,7 +103,7 @@ def save_image(image, path):
 
 
 def write_logs(message):
-    file = open('logs/accesses.log', 'a')
+    file = open('logs/accesses.log', 'a+')
     now = datetime.now()
     file.write('[' + str(now) + ']' + ': ' + message + '\n')
     file.close()
