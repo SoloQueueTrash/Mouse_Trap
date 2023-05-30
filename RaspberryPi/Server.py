@@ -45,8 +45,7 @@ def photoHandler(message):
 
         image = stream.getvalue()
         timestamp = datetime.now()
-        filename = str(timestamp.day) + '-' + str(timestamp.month) + '-' + str(timestamp.year) + '_' + str(
-            timestamp.hour) + ':' + str(timestamp.minute) + ':' + str(timestamp.second) + '.jpeg'
+        filename = timestamp.isoformat()
         path = 'images/' + filename
 
         save_image(image, path)
