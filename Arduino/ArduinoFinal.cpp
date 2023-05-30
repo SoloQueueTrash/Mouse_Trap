@@ -14,14 +14,16 @@
 #define DELAY_OPEN_MOVEMENT 3000
 #define DELAY_CLOSE_MOVEMENT 2000
 
-int door_status = 1;  //0 = fechada,      1= aberta
+bool doorOpen = true; 
+bool lookingForMovement = false;
+bool movementDetected = false;
+
+
 Servo x;
 int pirStateCurrent;         // we start, assuming no motion detected
 int pirStatePrevious;        // we start, assuming no motion detected
 int val = 0;                 // variable for reading the pin status
-int lookingForMovement = 0;  // varible before/after rpi
 unsigned long startTime;
-int test1 = 0;
 void setup() {
   Serial.begin(BAUD_RATE);
   x.attach(SERVO_PIN);
@@ -35,39 +37,39 @@ void setup() {
 
 
 void abrir() {
-  if (door_status == 0) {
+  if (!doorOpen) {
     x.write(MOTOR_OPEN_POSITION);
-    door_status = 1;
+    doorOpen = true;
     //Serial.println("cmd_open");
     pirStatePrevious = LOW;
     delay(DELAY_OPEN_MOVEMENT);
   }
-  test1 = 0;
-  lookingForMovement = 0;
+  movementDetected = false;
+  lookingForMovement = false;
 }
 
 void fechar() {
-  if (door_status == 1) {
+  if (doorOpen) {
     x.write(MOTOR_CLOSED_POSITION);  //90 = posição da porta fechada
-    door_status = 0;
+    doorOpen = false;
     //Serial.println("cmd_close");
     //pirStatePrevious = LOW;
     delay(DELAY_CLOSE_MOVEMENT);
   }
-  lookingForMovement = 1;
+  lookingForMovement = true;
 }
 
 
 void fechar2() {
-  if (door_status == 1) {
+  if (doorOpen) {
     x.write(MOTOR_CLOSED_POSITION);  //90 = posição da porta fechada
-    door_status = 0;
-    lookingForMovement = 1;
+    doorOpen = false;
+    lookingForMovement = true;
     Serial.println("cmd_autoclose");
     //pirStatePrevious = LOW;
     delay(DELAY_CLOSE_MOVEMENT);
   }
-  lookingForMovement = 1;
+  lookingForMovement = true;
 }
 
 
@@ -80,22 +82,22 @@ void loop() {
   Serial.println("cmd_detected");
   Serial.println("cmd_detected");
   Serial.flush();*/
-  if (lookingForMovement == 0 && door_status == 1) {
+  if (!lookingForMovement && doorOpen) {
     int test = readSerialPort();
     //Serial.println(test);
     if (test == 1) {
-    } else if (test == 0 && test1 == 0) {
+    } else if (test == 0 && !movementDetected) {
       //cmd_Serial.println("here");
       pirStateCurrent = digitalRead(PIR_PIN);  // read input value
       //pirState = HIGH;
       if (pirStateCurrent == HIGH && pirStatePrevious == LOW) {
-        test1 = 1;
+        movementDetected = true;
         Serial.println("cmd_detected");
         Serial.flush();
         //Serial.println("HERE");
         startTime = millis();
       }
-    } else if (test1 == 1) {
+    } else if (movementDetected) {
       //Serial.println("AQUIIII");
       unsigned long currentTime = millis();
       unsigned long elapsedTime = currentTime - startTime;
@@ -104,10 +106,10 @@ void loop() {
         //Serial.println("Time expired");
         fechar2();
         //abrir();
-        lookingForMovement = 1;
+        lookingForMovement = true;
       } else {
         if (readSerialPort() == 1) {
-          lookingForMovement = 1;
+          lookingForMovement = true;
         } else {
         }
       }
@@ -115,7 +117,7 @@ void loop() {
   }
 
   //waiting for RPI commands
-  else if (lookingForMovement == 1) {
+  else if (lookingForMovement) {
     //Serial.println("AQUI V2");
     readSerialPort();
   }
