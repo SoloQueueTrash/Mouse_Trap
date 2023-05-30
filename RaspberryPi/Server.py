@@ -10,8 +10,7 @@ import serial
 from flask import Flask
 from flask import jsonify, send_file, request
 
-global status
-status = 'cmd_open'
+current_status = 'cmd_open'
 
 app = Flask(__name__)
 
@@ -27,9 +26,9 @@ def not_found(error):
 @app.route('/status')
 def status():
     client_ip = request.remote_addr
-    global status
-    write_logs(f'Status: {status} requested from {client_ip}')
-    return jsonify({'status': 'OK', 'message': status})
+    global current_status
+    write_logs(f'Status: {current_status} requested from {client_ip}')
+    return jsonify({'status': current_status})
 
 
 @app.route('/photo/<string:message>')
@@ -72,16 +71,16 @@ def toArduino(message):
     client_ip = request.remote_addr
     write_logs(f'Command: \'{message}\' requested from {client_ip}')
     if message == "cmd_open" or message == "cmd_close":
-        global status
-        status = message
-        print("CURRET STATUS = " + status)
+        global current_status
+        current_status = message
+        print("CURRET STATUS = " + current_status)
         arduino.flush()
         time.sleep(0.1)
 
         if arduino.isOpen():
             arduino.write(message.encode())
 
-        return jsonify({'status': 'OK'})
+        return jsonify({'status': current_status})
     else:
         return jsonify({'status': '404', 'message': 'Invalid Command'})
 
