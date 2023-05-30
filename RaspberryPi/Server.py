@@ -7,7 +7,7 @@ from datetime import datetime
 
 import picamera
 import serial
-from flask import Flask
+from flask import Flask, abort
 from flask import jsonify, send_file, request
 
 current_status = 'cmd_open'
@@ -20,7 +20,7 @@ def not_found(error):
     path = request.path
     client_ip = request.remote_addr
     write_logs(f'Wrong Route: \'{path}\' requested from {client_ip}')
-    return jsonify({'status': '404', 'message': 'Route Not Found'})
+    abort(404)
 
 
 @app.route('/status')
@@ -56,13 +56,13 @@ def photoHandler(message):
     elif message == 'cmd_recent':
         fileA = get_newest_file("images/")
         if fileA is None:
-            return jsonify({'status': '404', 'message': 'Photo Not Found'})
+            abort(404)
         else:
             file = open("images/" + fileA, 'rb')
             imageB = file.read()
             return send_file(io.BytesIO(imageB), mimetype='image/jpeg')
     else:
-        return jsonify({'status': '404', 'message': 'Invalid Command'})
+        abort(400)
 
 
 # Sends commands to Arduino
@@ -82,7 +82,7 @@ def toArduino(message):
 
         return jsonify({'status': current_status})
     else:
-        return jsonify({'status': '404', 'message': 'Invalid Command'})
+        abort(400)
 
 
 def get_newest_file(folder_path):
