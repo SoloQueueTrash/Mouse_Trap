@@ -17,7 +17,7 @@ enum state_t { OPEN,
                CLOSED,
                WAITING };
 
-bool interrupt = false;
+bool movementDetected = false;
 
 state_t currentState;
 
@@ -25,7 +25,7 @@ Servo doorMotor;
 unsigned long movementTime;
 
 void registerMovement() {
-  interrupt = true;
+  movementDetected = true;
 }
 
 void setup() {
@@ -59,8 +59,8 @@ void loop() {
       if (command == "cmd_close") {
         closeDoor();
         currentState = CLOSED;
-      } else if (interrupt) {
-        interrupt = false;
+      } else if (movementDetected) {
+        movementDetected = false;
         currentState = WAITING;
         movementTime = millis();
         Serial.println("cmd_detected");
