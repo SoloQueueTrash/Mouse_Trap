@@ -6,6 +6,7 @@ import threading
 import time
 from datetime import datetime
 
+import dotenv
 import picamera
 import serial
 from flask import Flask, abort
@@ -120,6 +121,7 @@ def handle_detected():
 
 if __name__ == '__main__':
     logging.basicConfig(filename='logs/accesses.log', level=logging.INFO)
+    dotenv.load_dotenv()
     arduino = serial.Serial(sys.argv[1], 9600)
     thread = threading.Thread(target=handle_detected)
     thread.deamon = True
