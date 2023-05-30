@@ -1,40 +1,38 @@
-import os
-from flask import Flask
-from flask import jsonify, send_file, request
 import io
-from datetime import datetime
-import picamera
-import time
-import serial
-import requests
-import sys 
+import logging
+import os
+import sys
 import threading
+import time
+from datetime import datetime
 
-global status
-status = 'cmd_open'
+import picamera
+import serial
+from flask import Flask, abort
+from flask import jsonify, send_file, request
+
+current_status = 'cmd_open'
 
 app = Flask(__name__)
 
+
 @app.errorhandler(404)
 def not_found(error):
-    path = request.path
-    client_ip = request.remote_addr
-    write_logs(f'Wrong Route: \'{path}\' requested from {client_ip}')
-    return jsonify({'status': '404', 'message': 'Route Not Found'})
+    logging.error(f'Wrong Route: \'{request.path}\' requested from {request.remote_addr}')
+    abort(404)
+
 
 @app.route('/status')
 def status():
-    client_ip = request.remote_addr
-    global status
-    write_logs(f'Status: {status} requested from {client_ip}')
-    return jsonify({'status': 'OK', 'message': status})
-    
-@app.route('/photo/<string:message>')
-def photoHanler(message):
-    client_ip = request.remote_addr
-    write_logs(f'Command: \'{message}\' requested from {client_ip}')
+    logging.info(f'Status: {current_status} requested from {request.remote_addr}')
+    return jsonify({'status': current_status})
 
-    if(message == 'cmd_photo'):
+
+@app.route('/photo/<string:message>')
+def photoHandler(message):
+    logging.info(f'Command: \'{message}\' requested from {request.remote_addr}')
+
+    if message == 'cmd_photo':
         stream = io.BytesIO()
 
         with picamera.PiCamera() as camera:
@@ -43,42 +41,45 @@ def photoHanler(message):
 
         image = stream.getvalue()
         timestamp = datetime.now()
-        filename = str(timestamp.day) + '-' +  str(timestamp.month) + '-' + str(timestamp.year) + '_'+ str(timestamp.hour) + ':' + str(timestamp.minute) + ':' + str(timestamp.second) + '.jpeg'
+        filename = timestamp.isoformat()
         path = 'images/' + filename
-
         save_image(image, path)
-        write_logs(f'File: {filename} sent to {client_ip}')
-        
+        logging.info(f'File: {filename} saved')
+        logging.info(f'File: {filename} sent to {request.remote_addr}')
         return send_file(io.BytesIO(image), mimetype='image/jpeg')
-    elif(message == 'cmd_recent'):
-        fileA = get_newest_file("images/")
-        if(fileA is None):
-            return jsonify({'status': '404', 'message': 'Photo Not Found'})
+    elif message == 'cmd_recent':
+        filename = get_newest_file("images/")
+        if filename is None:
+            logging.error(f'No images found')
+            abort(404)
         else:
-            file = open("images/" + fileA, 'rb')
-            imageB = file.read()
-            return send_file(io.BytesIO(imageB), mimetype='image/jpeg')
+            file = open("images/" + filename, 'rb')
+            image = file.read()
+            logging.info(f'File: {filename} sent to {request.remote_addr}')
+            return send_file(io.BytesIO(image), mimetype='image/jpeg')
     else:
-        return jsonify({'status': '404', 'message': 'Invalid Command'})
+        abort(400)
+
 
 # Sends commands to Arduino
 @app.route('/arduino/<string:message>')
 def toArduino(message):
     client_ip = request.remote_addr
-    write_logs(f'Command: \'{message}\' requested from {client_ip}')
-    if(message == "cmd_open" or message == "cmd_close"):
-        global status
-        status = message
-        print("CURRET STATUS = " + status)
-        arduino.flush() 
-        time.sleep(0.1) 
+    logging.info(f'Command: \'{message}\' requested from {client_ip}')
+    if message == "cmd_open" or message == "cmd_close":
+        global current_status
+        # Log the command
+        current_status = message
+        arduino.flush()
+        time.sleep(0.1)
 
         if arduino.isOpen():
             arduino.write(message.encode())
 
-        return jsonify({'status': 'OK'})
+        return jsonify({'status': current_status})
     else:
-        return jsonify({'status': '404', 'message': 'Invalid Command'})
+        abort(400)
+
 
 def get_newest_file(folder_path):
     files = os.listdir(folder_path)
@@ -87,44 +88,40 @@ def get_newest_file(folder_path):
 
     files.sort(key=lambda x: os.path.getmtime(os.path.join(folder_path, x)))
 
-    newest_file = files[-1] 
+    newest_file = files[-1]
     return newest_file
+
 
 def save_image(image, path):
     file = open(path, 'wb')
     file.write(image)
     file.close()
 
-def write_logs(message):
-    file = open('logs/accesses.log', 'a')
-    now = datetime.now()
-    file.write('[' + str(now) + ']' +': '+ message + '\n')
-    file.close()
 
 def handle_detected():
-    while(True):
+    while True:
         while arduino.inWaiting() == 0: pass
 
-        if  arduino.inWaiting() > 0: 
+        if arduino.inWaiting() > 0:
             command = arduino.readline()
-            arduino.flushInput() #remove data after reading
+            arduino.flushInput()  # remove data after reading
 
-        command = command.decode().replace('\r','').replace('\n','')
+        command = command.decode().replace('\r', '').replace('\n', '')
 
-        write_logs(f'Command \'{command}\' got from Arduino')
-        print("COMMAND = " + command)
+        logging.info(f'Command \'{command}\' got from Arduino')
 
-        if(command == "cmd_detected"):
-            print("DETECTED")
-        if(command == "cmd_autoclose"):
+        if command == "cmd_detected":
+            logging.info("Movement detected")
+        if command == "cmd_autoclose":
             global status
+            logging.info("Automatic closing due to timeout")
             status = 'cmd_close'
-            print("AUTOCLOSE")
 
-arduino = serial.Serial(sys.argv[1], 9600)
-thread = threading.Thread(target=handle_detected)
-thread.deamon =True
-thread.start()
 
 if __name__ == '__main__':
+    logging.basicConfig(filename='logs/accesses.log', level=logging.INFO)
+    arduino = serial.Serial(sys.argv[1], 9600)
+    thread = threading.Thread(target=handle_detected)
+    thread.deamon = True
+    thread.start()
     app.run(host='0.0.0.0', port=8000, debug=True)
