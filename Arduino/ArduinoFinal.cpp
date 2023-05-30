@@ -1,10 +1,21 @@
 #include <Servo.h>
 #include <Wire.h>
 
+#define BAUD_RATE 9600
+
+#define PIR_PIN 2
+#define SERVO_PIN 6
+
+#define MOTOR_OPEN_POSITION 0
+#define MOTOR_CLOSED_POSITION 105
+
+#define TIMEOUT_AUTO_CLOSE 10000
+#define DELAY_SENSOR_READY 20000
+#define DELAY_OPEN_MOVEMENT 3000
+#define DELAY_CLOSE_MOVEMENT 2000
+
 int door_status = 1;  //0 = fechada,      1= aberta
-int servoPin = 6;     // choose the pin for the servo
 Servo x;
-int pirPin = 2;              // choose the input pin (for PIR sensor)
 int pirStateCurrent;         // we start, assuming no motion detected
 int pirStatePrevious;        // we start, assuming no motion detected
 int val = 0;                 // variable for reading the pin status
@@ -12,24 +23,24 @@ int lookingForMovement = 0;  // varible before/after rpi
 unsigned long startTime;
 int test1 = 0;
 void setup() {
-  Serial.begin(9600);
-  x.attach(servoPin);
-  x.write(0);
-  pinMode(pirPin, INPUT);
+  Serial.begin(BAUD_RATE);
+  x.attach(SERVO_PIN);
+  x.write(MOTOR_OPEN_POSITION);
+  pinMode(PIR_PIN, INPUT);
   pirStateCurrent = LOW;
   pirStatePrevious = LOW;
-  delay(20000);  // declare sensor as input
+  delay(DELAY_SENSOR_READY);  // declare sensor as input
   //Serial.println("Scouting");
 }
 
 
 void abrir() {
   if (door_status == 0) {
-    x.write(0);
+    x.write(MOTOR_OPEN_POSITION);
     door_status = 1;
     //Serial.println("cmd_open");
     pirStatePrevious = LOW;
-    delay(3000);
+    delay(DELAY_OPEN_MOVEMENT);
   }
   test1 = 0;
   lookingForMovement = 0;
@@ -37,11 +48,11 @@ void abrir() {
 
 void fechar() {
   if (door_status == 1) {
-    x.write(105);  //90 = posição da porta fechada
+    x.write(MOTOR_CLOSED_POSITION);  //90 = posição da porta fechada
     door_status = 0;
     //Serial.println("cmd_close");
     //pirStatePrevious = LOW;
-    delay(2000);
+    delay(DELAY_CLOSE_MOVEMENT);
   }
   lookingForMovement = 1;
 }
@@ -49,12 +60,12 @@ void fechar() {
 
 void fechar2() {
   if (door_status == 1) {
-    x.write(105);  //90 = posição da porta fechada
+    x.write(MOTOR_CLOSED_POSITION);  //90 = posição da porta fechada
     door_status = 0;
     lookingForMovement = 1;
     Serial.println("cmd_autoclose");
     //pirStatePrevious = LOW;
-    delay(2000);
+    delay(DELAY_CLOSE_MOVEMENT);
   }
   lookingForMovement = 1;
 }
@@ -75,7 +86,7 @@ void loop() {
     if (test == 1) {
     } else if (test == 0 && test1 == 0) {
       //cmd_Serial.println("here");
-      pirStateCurrent = digitalRead(pirPin);  // read input value
+      pirStateCurrent = digitalRead(PIR_PIN);  // read input value
       //pirState = HIGH;
       if (pirStateCurrent == HIGH && pirStatePrevious == LOW) {
         test1 = 1;
@@ -89,7 +100,7 @@ void loop() {
       unsigned long currentTime = millis();
       unsigned long elapsedTime = currentTime - startTime;
       //Serial.println(currentTime + " " + elapsedTime);
-      if (elapsedTime >= 10000) {
+      if (elapsedTime >= TIMEOUT_AUTO_CLOSE) {
         //Serial.println("Time expired");
         fechar2();
         //abrir();
