@@ -128,10 +128,9 @@ def handle_detected():
             print("AUTOCLOSE")
 
 
-arduino = serial.Serial(sys.argv[1], 9600)
-thread = threading.Thread(target=handle_detected)
-thread.deamon = True
-thread.start()
-
 if __name__ == '__main__':
+    arduino = serial.Serial(sys.argv[1], 9600)
+    thread = threading.Thread(target=handle_detected)
+    thread.deamon = True
+    thread.start()
     app.run(host='0.0.0.0', port=8000, debug=True)
