@@ -11,8 +11,7 @@ import dotenv
 import picamera
 import requests
 import serial
-from flask import Flask, abort
-from flask import jsonify, send_file, request
+from flask import Flask, abort, jsonify, send_file, request
 
 current_status = 'cmd_open'
 
@@ -119,8 +118,8 @@ def handle_detected():
         if command == "cmd_autoclose":
             send_notification('trap', 'Trap Timeout', 'Trap closed due to timeout')
             logging.info("Automatic closing due to timeout")
-            global status
-            status = 'cmd_close'
+            global current_status
+            current_status = 'cmd_close'
 
 
 def send_notification(topic, title, body):
