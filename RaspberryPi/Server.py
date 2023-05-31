@@ -157,7 +157,8 @@ def refresh_token():
         "refresh_token": rt,
     }
     data = json.dumps(data)
-    response = requests.post('https://developers.google.com/oauthplayground/refreshAccessToken', headers=headers, data=data)
+    response = requests.post('https://developers.google.com/oauthplayground/refreshAccessToken', headers=headers,
+                             data=data)
     if response.status_code == 200:
         return response.json()['access_token']
     else:
