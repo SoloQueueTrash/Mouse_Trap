@@ -55,10 +55,3 @@ The integration process involved connecting the sensor and servo motor to the Ar
 ### 2. **PIR Sensor Sensitivity**
 - **Problem:** The PIR sensor was overly sensitive, leading to false positives, and required an initial setup time to stabilize.
 - **Solution:** Introduced a 20-second setup time for the PIR sensor during which the trap remains inactive. This allowed the sensor to adjust to the environment, reducing false detections.
-
-### 3. **General Development Issues**
-- **Problem:** Encountered various dependency issues and unexpected behaviors during development.
-- **Solution:** These issues were swiftly identified and resolved, ensuring they did not significantly impact the project's progress.
-
-## Conclusion
-The project successfully created a functional and responsive automatic mousetrap system, integrating various hardware and software components. Despite the challenges faced during development, appropriate solutions were implemented, resulting in a versatile system that allows users to remotely monitor and control the mousetraps efficiently via a mobile application.
